@@ -14,6 +14,34 @@
 
 @implementation MouseViewController
 
+- (IBAction)moveMouse:(UIPanGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        NSLog(@"pan started");
+    }
+    else if (sender.state == UIGestureRecognizerStateChanged) {
+        NSLog(@"pan changed");
+    }
+    else if (sender.state == UIGestureRecognizerStateEnded) {
+        NSLog(@"pan ended");
+    }
+}
+
+- (IBAction)leftClick:(UITapGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateRecognized) {
+        
+        NSLog(@"left click");
+    }
+}
+
+
+- (IBAction)rightClick:(UITapGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateRecognized) {
+        
+        NSLog(@"right click");
+    }
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
