@@ -22,6 +22,7 @@
 		C279106718B7FEC60063A0D9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C279104618B7FEC60063A0D9 /* UIKit.framework */; };
 		C279106F18B7FEC60063A0D9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C279106D18B7FEC60063A0D9 /* InfoPlist.strings */; };
 		C279107118B7FEC60063A0D9 /* MouseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C279107018B7FEC60063A0D9 /* MouseTests.m */; };
+		C279107B18B96B5B0063A0D9 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C279107A18B96B5B0063A0D9 /* CoreBluetooth.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		C279106C18B7FEC60063A0D9 /* MouseTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MouseTests-Info.plist"; sourceTree = "<group>"; };
 		C279106E18B7FEC60063A0D9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C279107018B7FEC60063A0D9 /* MouseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MouseTests.m; sourceTree = "<group>"; };
+		C279107A18B96B5B0063A0D9 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C279107B18B96B5B0063A0D9 /* CoreBluetooth.framework in Frameworks */,
 				C279104518B7FEC60063A0D9 /* CoreGraphics.framework in Frameworks */,
 				C279104718B7FEC60063A0D9 /* UIKit.framework in Frameworks */,
 				C279104318B7FEC60063A0D9 /* Foundation.framework in Frameworks */,
@@ -103,6 +106,7 @@
 		C279104118B7FEC60063A0D9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C279107A18B96B5B0063A0D9 /* CoreBluetooth.framework */,
 				C279104218B7FEC60063A0D9 /* Foundation.framework */,
 				C279104418B7FEC60063A0D9 /* CoreGraphics.framework */,
 				C279104618B7FEC60063A0D9 /* UIKit.framework */,
