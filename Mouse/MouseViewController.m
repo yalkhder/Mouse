@@ -34,6 +34,24 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (NSData *)dataFromPoint:(CGPoint)point {
+    if (sizeof(NSInteger) == 4) {
+        // working in 32bit
+        NSInteger xBuffer = point.x >= 0 ? 0 : 0xffffffff;
+        NSInteger yBuffer = point.y >= 0 ? 0 : 0xffffffff;
+        NSInteger pointArray [4] = { point.x, xBuffer, point.y, yBuffer };
+        NSData *pointData = [NSData dataWithBytes:pointArray length:sizeof(NSInteger) *4];
+//        NSLog(@"pointData: %@", pointData);
+        return pointData;
+    }
+    else {
+        // working in 64bit
+        NSInteger pointArray [2] = { point.x, point.y};
+        NSData *pointData = [NSData dataWithBytes:pointArray length:sizeof(NSInteger)*2];
+        return pointData;
+    }
+}
+
 #pragma mark - UIGestureRecognizer Actions
 
 - (IBAction)moveMouse:(UIPanGestureRecognizer *)sender {
@@ -43,7 +61,7 @@
     else if (sender.state == UIGestureRecognizerStateChanged) {
         CGPoint point = [sender translationInView:self.view];
         NSLog(@"pan changed: %f %f", point.x, point.y);
-        NSData *pointData = [NSData dataWithBytes:&point length:sizeof(CGPoint)];
+        
         // One way of decoding
 //        CGPoint pointFromData;
 //        [pointData getBytes:&pointFromData length:sizeof(CGPoint)];
@@ -53,18 +71,19 @@
 //        CGPoint *pointFromData = (CGPoint *)[pointData bytes];
 //        NSLog(@"%f %f", pointFromData->x, pointFromData->y);
         
-        self.mouseMoveCharacteristic.value = pointData;
+        self.mouseMoveCharacteristic.value = [self dataFromPoint:point];
+        NSLog(@"data in move mouse: %@", self.mouseMoveCharacteristic.value);
         
         [sender setTranslation:CGPointZero inView:self.view];
     }
     else if (sender.state == UIGestureRecognizerStateEnded) {
-        NSLog(@"pan ended");
+        CGPoint point = [sender translationInView:self.view];
+        NSLog(@"pan ended with point: %f %f", point.x, point.y);
     }
 }
 
 - (IBAction)leftClick:(UITapGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateRecognized) {
-        
         NSLog(@"left click");
     }
 }
@@ -72,7 +91,6 @@
 
 - (IBAction)rightClick:(UITapGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateRecognized) {
-        
         NSLog(@"right click");
     }
 }
@@ -126,6 +144,19 @@
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral didReceiveReadRequest:(CBATTRequest *)request {
     NSLog(@"Did Recieve Read Request");
+    if ([request.characteristic.UUID isEqual:self.mouseMoveCharacteristic.UUID]) {
+        if (request.offset > self.mouseMoveCharacteristic.value.length) {
+            [peripheral respondToRequest:request withResult:CBATTErrorInvalidOffset];
+            return;
+        }
+        request.value = self.mouseMoveCharacteristic.value;
+        NSUInteger pointArray [2];
+        [request.value getBytes:pointArray length:sizeof(NSInteger)*2];
+        NSLog(@"point: %lu %lu", (long)pointArray[0], (long)pointArray[1]);
+        NSLog(@"request.value: %@", request.value);
+
+        [peripheral respondToRequest:request withResult:CBATTErrorSuccess];
+    }
 }
 
 
