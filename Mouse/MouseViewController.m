@@ -35,21 +35,9 @@
 }
 
 - (NSData *)dataFromPoint:(CGPoint)point {
-    if (sizeof(NSInteger) == 4) {
-        // working in 32bit
-        NSInteger xBuffer = point.x >= 0 ? 0 : 0xffffffff;
-        NSInteger yBuffer = point.y >= 0 ? 0 : 0xffffffff;
-        NSInteger pointArray [4] = { point.x, xBuffer, point.y, yBuffer };
-        NSData *pointData = [NSData dataWithBytes:pointArray length:sizeof(NSInteger) *4];
-//        NSLog(@"pointData: %@", pointData);
-        return pointData;
-    }
-    else {
-        // working in 64bit
-        NSInteger pointArray [2] = { point.x, point.y};
-        NSData *pointData = [NSData dataWithBytes:pointArray length:sizeof(NSInteger)*2];
-        return pointData;
-    }
+    int64_t pointArray [2] = { (int64_t)point.x, (int64_t)point.y };
+    NSData *pointData = [NSData dataWithBytes:&pointArray length:sizeof(int64_t)*2];
+    return pointData;
 }
 
 #pragma mark - UIGestureRecognizer Actions
@@ -62,17 +50,8 @@
         CGPoint point = [sender translationInView:self.view];
         NSLog(@"pan changed: %f %f", point.x, point.y);
         
-        // One way of decoding
-//        CGPoint pointFromData;
-//        [pointData getBytes:&pointFromData length:sizeof(CGPoint)];
-//        NSLog(@"%f %f", pointFromData.x, pointFromData.y);
-        
-        // Another way (Don't know which is "better"
-//        CGPoint *pointFromData = (CGPoint *)[pointData bytes];
-//        NSLog(@"%f %f", pointFromData->x, pointFromData->y);
-        
         self.mouseMoveCharacteristic.value = [self dataFromPoint:point];
-        NSLog(@"data in move mouse: %@", self.mouseMoveCharacteristic.value);
+        [self.peripheralManager updateValue:self.mouseMoveCharacteristic.value forCharacteristic:self.mouseMoveCharacteristic onSubscribedCentrals:nil];
         
         [sender setTranslation:CGPointZero inView:self.view];
     }
@@ -112,7 +91,9 @@
         CBUUID *mousePanCharacteristicUUID = [CBUUID UUIDWithString:@"17D3EE2B-5464-42D9-B9BC-416F7DDC9335"];
         CBUUID *mouseServiceUUID = [CBUUID UUIDWithString:@"E5F03A91-9C62-4570-9E55-3489B4510AAB"];
         
-        self.mouseMoveCharacteristic = [[CBMutableCharacteristic alloc] initWithType:mousePanCharacteristicUUID properties:CBCharacteristicPropertyWrite | CBCharacteristicPropertyRead value:nil permissions:CBAttributePermissionsReadable | CBAttributePermissionsWriteable];
+//        self.mouseMoveCharacteristic = [[CBMutableCharacteristic alloc] initWithType:mousePanCharacteristicUUID properties:CBCharacteristicPropertyWrite | CBCharacteristicPropertyRead value:nil permissions:CBAttributePermissionsReadable | CBAttributePermissionsWriteable];
+        
+        self.mouseMoveCharacteristic = [[CBMutableCharacteristic alloc] initWithType:mousePanCharacteristicUUID properties:CBCharacteristicPropertyNotify| CBCharacteristicPropertyRead value:nil permissions:CBAttributePermissionsReadable | CBAttributePermissionsWriteable];
         
         CBMutableService *mouseService = [[CBMutableService alloc] initWithType:mouseServiceUUID primary:YES];
         mouseService.characteristics = @[self.mouseMoveCharacteristic];
@@ -150,15 +131,14 @@
             return;
         }
         request.value = self.mouseMoveCharacteristic.value;
-        NSUInteger pointArray [2];
-        [request.value getBytes:pointArray length:sizeof(NSInteger)*2];
-        NSLog(@"point: %lu %lu", (long)pointArray[0], (long)pointArray[1]);
         NSLog(@"request.value: %@", request.value);
 
         [peripheral respondToRequest:request withResult:CBATTErrorSuccess];
     }
 }
 
-
+- (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central didSubscribeToCharacteristic:(CBCharacteristic *)characteristic {
+    NSLog(@"Central Subscribed");
+}
 
 @end
